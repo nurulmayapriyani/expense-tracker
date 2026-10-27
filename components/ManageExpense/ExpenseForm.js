@@ -6,7 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 
 import { GlobalStyles } from '../../constants/styles';
@@ -14,6 +14,7 @@ import { getFormattedDate } from '../../utils/date';
 
 import Button from '../UI/Button';
 import FlatButton from '../UI/FlatButton';
+import IconButton from '../UI/IconButton';
 import ImagePicker from './ImagePicker';
 import Input from './Input';
 import LocationPicker from './LocationPicker';
@@ -21,31 +22,22 @@ import LocationPicker from './LocationPicker';
 function ExpenseForm({
   submitButtonLabel,
   onCancel,
+  onDelete,
   onSubmit,
+  isEditing,
   defaultValues,
   expenseId,
 }) {
-  const [imageUri, setImageUri] = useState(
-    defaultValues?.imageUri ?? null
-  );
+  const [imageUri, setImageUri] = useState(defaultValues?.imageUri ?? null);
 
-  const [pickedLocation, setPickedLocation] = useState(
-    defaultValues?.location ?? null
-  );
+  const [pickedLocation, setPickedLocation] = useState(defaultValues?.location ?? null);
 
   useEffect(() => {
-    console.log(
-      'ExpenseForm defaultValues:',
-      defaultValues
-    );
+    console.log('ExpenseForm defaultValues:', defaultValues);
 
-    const location =
-      defaultValues?.location ?? null;
+    const location = defaultValues?.location ?? null;
 
-    console.log(
-      'ExpenseForm location:',
-      location
-    );
+    console.log('ExpenseForm location:', location);
 
     setPickedLocation(location);
   }, [defaultValues]);
@@ -85,10 +77,7 @@ function ExpenseForm({
 
   const pickLocationHandler = useCallback(
     (location) => {
-      console.log(
-        'ExpenseForm received location:',
-        location
-      );
+      console.log('ExpenseForm received location:', location);
 
       setPickedLocation(location);
     },
@@ -104,21 +93,13 @@ function ExpenseForm({
       location: pickedLocation,
     };
 
-    console.log(
-      'ExpenseForm submitHandler:',
-      expenseData
-    );
+    console.log('ExpenseForm submitHandler:', expenseData);
 
-    const amountIsValid =
-      !isNaN(expenseData.amount) &&
-      expenseData.amount > 0;
+    const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
 
-    const dateIsValid =
-      expenseData.date.toString() !== 'Invalid Date' &&
-      expenseData.date.trim().length > 0;
+    const dateIsValid = expenseData.date.toString() !== 'Invalid Date' && expenseData.date.trim().length > 0;
 
-    const descriptionIsValid =
-      expenseData.description.trim().length > 0;
+    const descriptionIsValid = expenseData.description.trim().length > 0;
 
     if (
       !amountIsValid ||
@@ -154,10 +135,7 @@ function ExpenseForm({
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.select({
-        ios: 'padding',
-        android: 'height',
-      })}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={headerHeight}
     >
       <ScrollView
@@ -179,10 +157,7 @@ function ExpenseForm({
             invalid={!inputs.amount.isValid}
             textInputConfig={{
               keyboardType: 'decimal-pad',
-              onChangeText: inputChangedHandler.bind(
-                this,
-                'amount'
-              ),
+              onChangeText: inputChangedHandler.bind(this, 'amount'),
               value: inputs.amount.value,
             }}
           />
@@ -194,10 +169,7 @@ function ExpenseForm({
             textInputConfig={{
               placeholder: 'YYYY-MM-DD',
               maxLength: 10,
-              onChangeText: inputChangedHandler.bind(
-                this,
-                'date'
-              ),
+              onChangeText: inputChangedHandler.bind(this, 'date'),
               value: inputs.date.value,
             }}
           />
@@ -208,10 +180,7 @@ function ExpenseForm({
           invalid={!inputs.description.isValid}
           textInputConfig={{
             multiline: true,
-            onChangeText: inputChangedHandler.bind(
-              this,
-              'description'
-            ),
+            onChangeText: inputChangedHandler.bind(this, 'description'),
             value: inputs.description.value,
           }}
         />
@@ -249,6 +218,19 @@ function ExpenseForm({
             {submitButtonLabel}
           </Button>
         </View>
+
+         {isEditing && (
+            <View
+              style={styles.deleteContainer}
+            >
+              <IconButton
+                icon="trash"
+                color={GlobalStyles.colors.error500}
+                size={36}
+                onPress={onDelete}
+              />
+            </View>
+          )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -259,7 +241,7 @@ export default ExpenseForm;
 const styles = StyleSheet.create({
   form: {
     paddingTop: 0,
-    paddingBottom: 50,
+    paddingBottom: 120,
   },
 
   title: {
@@ -296,5 +278,14 @@ const styles = StyleSheet.create({
     minWidth: 120,
     marginHorizontal: 8,
     borderRadius: 8,
+  },
+
+  deleteContainer: {
+    marginTop: 24,
+    marginBottom: 24,
+    paddingTop: 16,
+    borderTopWidth: 2,
+    borderTopColor: GlobalStyles.colors.primary200,
+    alignItems: 'center',
   },
 });

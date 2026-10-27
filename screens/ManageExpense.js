@@ -319,7 +319,6 @@ import {
 
 import ExpenseForm from '../components/ManageExpense/ExpenseForm';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
-import IconButton from '../components/UI/IconButton';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
 
 import { GlobalStyles } from '../constants/styles';
@@ -335,36 +334,25 @@ import { getAuthData, uploadExpenseImage } from '../utils/firebase';
 import { scheduleNotification } from '../utils/notif';
 
 function ManageExpense({ route, navigation }) {
-  console.log(
-    'MANAGE EXPENSE PARAMS:',
-    route.params
-  );
+  console.log('MANAGE EXPENSE PARAMS:', route.params);
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [error, setError] = useState();
 
   const { height } = useWindowDimensions();
 
-  const paddingTopDistance =
-    height < 400 ? 0 : 20;
+  const paddingTopDistance = height < 400 ? 0 : 20;
 
   const dispatch = useDispatch();
 
-  const editedExpenseId =
-    route.params?.expenseId;
+  const editedExpenseId = route.params?.expenseId;
 
   const isEditing = !!editedExpenseId;
 
-  const expenses = useSelector(
-    (state) => state.expenses.expenses
-  );
+  const expenses = useSelector((state) => state.expenses.expenses);
 
-  const selectedExpense = expenses.find(
-    (expense) =>
-      expense.id === editedExpenseId
-  );
+  const selectedExpense = expenses.find((expense) => expense.id === editedExpenseId);
 
   const pickedLat = route.params?.pickedLat;
   const pickedLng = route.params?.pickedLng;
@@ -376,7 +364,6 @@ function ManageExpense({ route, navigation }) {
   const expenseToEdit = selectedExpense
     ? {
         ...selectedExpense,
-
         ...(pickedLat != null &&
         pickedLng != null
           ? {
@@ -397,30 +384,15 @@ function ManageExpense({ route, navigation }) {
       }
     : undefined;
 
-  console.log(
-    'EDITED EXPENSE ID:',
-    editedExpenseId
-  );
+  console.log('EDITED EXPENSE ID:', editedExpenseId);
 
-  console.log(
-    'SELECTED EXPENSE:',
-    selectedExpense
-  );
+  console.log('SELECTED EXPENSE:', selectedExpense);
 
-  console.log(
-    'PICKED LAT:',
-    pickedLat
-  );
+  console.log('PICKED LAT:', pickedLat);
 
-  console.log(
-    'PICKED LNG:',
-    pickedLng
-  );
+  console.log('PICKED LNG:', pickedLng);
 
-  console.log(
-    'EXPENSE TO EDIT:',
-    expenseToEdit
-  );
+  console.log('EXPENSE TO EDIT:', expenseToEdit);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -439,10 +411,11 @@ function ManageExpense({ route, navigation }) {
   async function deleteExpenseHandler() {
     setIsSubmitting(true);
 
+    // Grab the description BEFORE removing the expense from Redux
+    const deletedDescription = selectedExpense?.description ?? 'Expense';
+
     try {
-      await deleteExpenseHttp(
-        editedExpenseId
-      );
+      await deleteExpenseHttp(editedExpenseId);
 
       dispatch(
         removeExpenseAction({
@@ -450,17 +423,19 @@ function ManageExpense({ route, navigation }) {
         })
       );
 
+      await scheduleNotification(
+        'Expense Deleted',
+        `Your expense ${deletedDescription} was deleted successfully.`,
+        {
+          expenseId: editedExpenseId,
+          description: deletedDescription,
+        }
+      );
+
       navigation.goBack();
     } catch (error) {
-      console.log(
-        'Delete expense error:',
-        error
-      );
-
-      setError(
-        'Could not delete expense - please try again later!'
-      );
-
+      console.log('Delete expense error:', error);
+      setError('Could not delete expense - please try again later!');
       setIsSubmitting(false);
     }
   }
@@ -596,25 +571,10 @@ function ManageExpense({ route, navigation }) {
 
       navigation.goBack();
     } catch (error) {
-      console.log(
-        'SAVE EXPENSE ERROR:',
-        error
-      );
-
-      console.log(
-        'SAVE EXPENSE ERROR RESPONSE:',
-        error?.response?.data
-      );
-
-      console.log(
-        'SAVE EXPENSE ERROR MESSAGE:',
-        error?.message
-      );
-
-      setError(
-        'Could not save data - please try again later!'
-      );
-
+      console.log('SAVE EXPENSE ERROR:', error);
+      console.log('SAVE EXPENSE ERROR RESPONSE:', error?.response?.data);
+      console.log('SAVE EXPENSE ERROR MESSAGE:', error?.message);
+      setError('Could not save data - please try again later!');
       setIsSubmitting(false);
     }
   }
@@ -624,9 +584,7 @@ function ManageExpense({ route, navigation }) {
    */
   if (error && !isSubmitting) {
     return (
-      <ErrorOverlay
-        message={error}
-      />
+      <ErrorOverlay message={error}/>
     );
   }
 
@@ -658,34 +616,12 @@ function ManageExpense({ route, navigation }) {
             : 'Add'
         }
         onSubmit={confirmHandler}
+        onDelete={deleteExpenseHandler}
+        isEditing={isEditing}
         onCancel={cancelHandler}
-        defaultValues={
-          expenseToEdit
-        }
-        expenseId={
-          editedExpenseId
-        }
+        defaultValues={expenseToEdit}
+        expenseId={editedExpenseId}
       />
-
-      {isEditing && (
-        <View
-          style={
-            styles.deleteContainer
-          }
-        >
-          <IconButton
-            icon="trash"
-            color={
-              GlobalStyles.colors
-                .error500
-            }
-            size={36}
-            onPress={
-              deleteExpenseHandler
-            }
-          />
-        </View>
-      )}
     </View>
   );
 }
@@ -695,20 +631,9 @@ export default ManageExpense;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 24,
     paddingHorizontal: 24,
-    paddingBottom: 70,
-    backgroundColor:
-      GlobalStyles.colors.primary800,
-  },
-
-  deleteContainer: {
-    paddingTop: 0,
-    margin: 0,
-    borderTopWidth: 2,
-    borderTopColor:
-      GlobalStyles.colors.primary200,
-    alignItems: 'center',
+    paddingBottom: 0,
+    backgroundColor: GlobalStyles.colors.primary800,
   },
 });
 

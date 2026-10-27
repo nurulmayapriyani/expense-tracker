@@ -11,11 +11,7 @@ function Button({ children, onPress, style }) {
           pressed && styles.pressed,
         ]}
       >
-        <Text
-          style={[
-            styles.buttonText,
-          ]}
-        >
+        <Text style={[styles.buttonText]}>
           {children}
         </Text>
       </Pressable>

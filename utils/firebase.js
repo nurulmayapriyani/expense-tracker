@@ -124,17 +124,11 @@ export async function uploadExpenseImage(imageUri, uid) {
       body: formData,
     });
 
-    console.log(
-      'CLOUDINARY RESPONSE STATUS:',
-      uploadResponse.status
-    );
+    console.log('CLOUDINARY RESPONSE STATUS:', uploadResponse.status);
 
     const responseText = await uploadResponse.text();
 
-    console.log(
-      'CLOUDINARY RESPONSE BODY:',
-      responseText
-    );
+    console.log('CLOUDINARY RESPONSE BODY:', responseText);
 
     if (!uploadResponse.ok) {
       throw new Error(
@@ -144,23 +138,15 @@ export async function uploadExpenseImage(imageUri, uid) {
 
     const data = JSON.parse(responseText);
 
-    console.log(
-      'CLOUDINARY SECURE URL:',
-      data.secure_url
-    );
+    console.log('CLOUDINARY SECURE URL:', data.secure_url);
 
-    console.log(
-      'CLOUDINARY PUBLIC ID:',
-      data.public_id
-    );
+    console.log('CLOUDINARY PUBLIC ID:', data.public_id);
 
     console.log('========== CLOUDINARY UPLOAD FINISHED ==========');
 
     return data.secure_url;
   } catch (error) {
-    console.log(
-      '========== CLOUDINARY UPLOAD ERROR =========='
-    );
+    console.log('========== CLOUDINARY UPLOAD ERROR ==========');
 
     console.log('ERROR NAME:', error?.name);
     console.log('ERROR MESSAGE:', error?.message);

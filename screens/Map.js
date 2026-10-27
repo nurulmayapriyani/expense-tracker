@@ -433,19 +433,12 @@ function Map({ navigation, route }) {
         onError={(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
 
-          console.log(
-            'WebView error:',
-            nativeEvent
-          );
+          console.log('WebView error:', nativeEvent);
         }}
         onHttpError={(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
 
-          console.log(
-            'WebView HTTP error:',
-            nativeEvent.statusCode,
-            nativeEvent.description
-          );
+          console.log('WebView HTTP error:', nativeEvent.statusCode, nativeEvent.description);
         }}
       />
     </View>
